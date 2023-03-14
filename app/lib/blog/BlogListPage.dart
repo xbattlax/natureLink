@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../widgets/BottomNav.dart';
 import 'BlogArticle.dart';
 import 'BlogPreviewPage.dart';
 import 'package:http/http.dart' as http;
@@ -14,10 +16,10 @@ class BlogListPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('My Blog'),
+        title: Text('Blog'),
       ),
       body: FutureBuilder<List<BlogArticle>>(
-        future: fetchBlogArticles(),
+        future: fetchArticles(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             return ListView.builder(
@@ -43,13 +45,49 @@ class BlogListPage extends StatelessWidget {
         },
         child: Icon(Icons.add),
       ),
+      bottomNavigationBar: BottomNav(),
     );
   }
 }
 
 
-Future<List<BlogArticle>> fetchBlogArticles() async {
-  //final response = await http.get(Uri.parse('https://your-api-url.com/articles'));
+Future<List<BlogArticle>> fetchArticles() async {
+  final storage = FlutterSecureStorage();
+  String? token = await storage.read(key: 'jwt_token');
+
+  if (token == null) {
+    print('No access token found');
+    return []; // Return an empty list instead of null
+  }
+
+  final response = await http.get(
+    Uri.parse('http://localhost:8000/api/articles'),
+    headers: {
+      'Authorization': 'Bearer $token',
+      'accept': 'application/json',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    // Successfully fetched articles
+    String responseBody = response.body;
+    List<dynamic> parsedJson = json.decode(responseBody); // Directly decode the response body into a List<dynamic>
+
+    List<BlogArticle> articles = parsedJson.map((item) => BlogArticle.fromJson(item)).toList();
+    return articles;
+  } else {
+    // Handle error or show an error message
+    print('Failed to fetch articles');
+    return []; // Return an empty list instead of null
+  }
+}
+
+
+
+
+
+/*Future<List<BlogArticle>> fetchBlogArticles() async {
+  final response = await http.get(Uri.parse('https://your-api-url.com/articles'));
   var jsonTest = """[
   {
     "title": "Mon premier article",
@@ -83,4 +121,4 @@ Future<List<BlogArticle>> fetchBlogArticles() async {
     //throw Exception('Failed to load articles');
   //}
   return articles;
-}
+}*/

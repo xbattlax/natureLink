@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'BlogArticle.dart';
 import 'BlogPreviewPage.dart';
+import 'dart:math';
 
 class BlogPreviewCard extends StatelessWidget {
   final BlogArticle article;
@@ -43,7 +44,7 @@ class BlogPreviewCard extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  article.content.substring(0, 100) + '...',
+                  article.content.substring(0, min(100, article.content.length)) + '...',
                   style: TextStyle(
                     color: Colors.grey[800],
                   ),

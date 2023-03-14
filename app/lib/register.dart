@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:chasse_marche_app/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class MyRegister extends StatefulWidget {
   const MyRegister({Key? key}) : super(key: key);
@@ -82,6 +84,24 @@ class _MyRegisterState extends State<MyRegister> {
   set(String name) async {
     SharedPreferences pref = await SharedPreferences.getInstance();
     pref.setString(name, _controler[name]!.text);
+  }
+
+  Future<bool> registerUser(Map<String, String> userData) async {
+    final response = await http.post(
+      Uri.parse('http://localhost:8000/register'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(userData),
+    );
+
+    if (response.statusCode == 200) {
+      // Registration successful
+      return true;
+    } else {
+      // Registration failed
+      return false;
+    }
   }
 
 
@@ -164,8 +184,19 @@ class _MyRegisterState extends State<MyRegister> {
                                     "phone": _controler["phone"]!.text,
                                     "address": _controler["address"]!.text,
                                   });
-                                  print(json.toString());
-                                  state = 0;
+                                  registerUser(json.map((key, value) => MapEntry<String, String>(key, value.toString()))).then((success) {
+
+                                    if (success) {
+                                      // Navigate to the login page or any other page as needed
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                        return LoginPage();
+                                      }));
+                                    } else {
+                                      // Show an error message or handle the error as needed
+                                      print('Registration failed');
+                                      state = 0;
+                                    }
+                                  });
                                 });
                                 break;
                             }

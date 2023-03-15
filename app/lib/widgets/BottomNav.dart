@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../CartePage.dart';
+import '../LoginPage.dart';
+import '../UserPage.dart';
 import '../blog/BlogListPage.dart';
 
 class BottomNav extends StatefulWidget {
@@ -47,12 +49,12 @@ class _BottomNavState extends State<BottomNav> {
         break;
       case 2:
         setCurrentIndex();
-        Navigator.push(context, PageRouteBuilder(pageBuilder: (_, __, ___) => BlogListPage()));
+        Navigator.push(context, PageRouteBuilder(pageBuilder: (_, __, ___) => BlogListPage(onError: () => _redirectToLoginPage(context))));
         break;
-      //case 3:
-        //setCurrentIndex();
-        //Navigator.push(context, PageRouteBuilder(pageBuilder: (_, __, ___) => UserInterfacePage(title: "User Interface")));
-        //break;
+      case 3:
+        setCurrentIndex();
+        Navigator.push(context, PageRouteBuilder(pageBuilder: (_, __, ___) => UserPage()));
+        break;
     }
   }
 
@@ -86,4 +88,13 @@ class _BottomNavState extends State<BottomNav> {
       onTap: _onItemTapped,
     );
   }
+}
+
+void _redirectToLoginPage(BuildContext context) {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (context) => LoginPage(),
+    ),
+  );
 }

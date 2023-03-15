@@ -8,10 +8,13 @@ import 'BlogPreviewPage.dart';
 import 'package:http/http.dart' as http;
 import 'BlogPreviewCard.dart';
 import 'BlogArticleForm.dart';
-
+import '../LoginPage.dart';
 
 
 class BlogListPage extends StatelessWidget {
+  final Function onError;
+  BlogListPage({required this.onError});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,7 +32,8 @@ class BlogListPage extends StatelessWidget {
               },
             );
           } else if (snapshot.hasError) {
-            return Text("${snapshot.error}");
+            WidgetsBinding.instance.addPostFrameCallback((_) => _redirectToLoginPage(context));
+            return Center(child: Text("Redirecting to login page..."));
           }
           return Center(child: CircularProgressIndicator());
         },
@@ -50,6 +54,14 @@ class BlogListPage extends StatelessWidget {
   }
 }
 
+void _redirectToLoginPage(BuildContext context) {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (context) => LoginPage(),
+    ),
+  );
+}
 
 Future<List<BlogArticle>> fetchArticles() async {
   final storage = FlutterSecureStorage();
@@ -57,7 +69,7 @@ Future<List<BlogArticle>> fetchArticles() async {
 
   if (token == null) {
     print('No access token found');
-    return []; // Return an empty list instead of null
+    throw Exception('Failed to fetch articles'); // Return an empty list instead of null
   }
 
   final response = await http.get(
@@ -78,7 +90,7 @@ Future<List<BlogArticle>> fetchArticles() async {
   } else {
     // Handle error or show an error message
     print('Failed to fetch articles');
-    return []; // Return an empty list instead of null
+    throw Exception('Failed to fetch articles'); // Return an empty list instead of null
   }
 }
 

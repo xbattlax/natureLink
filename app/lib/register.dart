@@ -95,15 +95,21 @@ class _MyRegisterState extends State<MyRegister> {
       body: jsonEncode(userData),
     );
 
-    if (response.statusCode == 200) {
+    if (response.statusCode == 201) {
       // Registration successful
+      print('Registration successful');
       return true;
     } else {
       // Registration failed
+      print('Registration failed with status code: ${response.statusCode}');
+      print('Error: ${response.body}');
       return false;
     }
   }
-
+  void _showSnackBar(BuildContext context, String message) {
+    final snackBar = SnackBar(content: Text(message));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -180,17 +186,19 @@ class _MyRegisterState extends State<MyRegister> {
                                     "username": _controler["username"]!.text,
                                     "name": _controler["name"]!.text,
                                     "surname": _controler["surname"]!.text,
-                                    "date de naissance": _controler["date de naissance"]!.text,
+                                    "date_de_naissance": _controler["date de naissance"]!.text,
                                     "phone": _controler["phone"]!.text,
                                     "address": _controler["address"]!.text,
                                   });
                                   registerUser(json.map((key, value) => MapEntry<String, String>(key, value.toString()))).then((success) {
-
                                     if (success) {
-                                      // Navigate to the login page or any other page as needed
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) {
-                                        return LoginPage();
-                                      }));
+                                      _showSnackBar(context, 'Registration successful'); // Show the success message
+                                      Future.delayed(Duration(seconds: 2), () {
+                                        // Navigate to the login page after a 2-second delay
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                          return LoginPage();
+                                        }));
+                                      });
                                     } else {
                                       // Show an error message or handle the error as needed
                                       print('Registration failed');

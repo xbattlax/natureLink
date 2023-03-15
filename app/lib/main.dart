@@ -1,6 +1,7 @@
 import 'CartePage.dart';
-import 'package:chasse_marche_app/LoginPage.dart';
-import 'package:chasse_marche_app/carte.dart';
+import 'LoginPage.dart';
+import 'UserPage.dart';
+import 'carte.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -26,9 +27,22 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: BlogListPage(),
-      navigatorObservers: [tokenObserver], // Add the TokenObserver to navigatorObservers
+      home: BlogListPage(onError: () => _redirectToLoginPage(context)),
+      navigatorObservers: [tokenObserver],
+      routes: {
+        '/user': (context) => UserPage(),
+        '/login': (context) => LoginPage(), // Add your LoginPage route here
+      },
     );
   }
 }
 
+
+void _redirectToLoginPage(BuildContext context) {
+  Navigator.pushReplacement(
+    context,
+    MaterialPageRoute(
+      builder: (context) => LoginPage(),
+    ),
+  );
+}

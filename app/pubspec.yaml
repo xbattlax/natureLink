@@ -39,6 +39,15 @@ dependencies:
   get: ^4.6.5
   shared_preferences: ^2.0.15
   location: ^4.4.0
+  flutter_map: ^3.1.0
+  latlong2: ^0.8.1
+  flutter_map_location_marker: any
+  geolocator: ^9.0.2
+  location_picker_flutter_map: any
+  mapbox_search: ^1.0.1
+  mapbox_gl: any
+
+  
 
 dev_dependencies:
   flutter_test:

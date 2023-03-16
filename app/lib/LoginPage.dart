@@ -12,6 +12,27 @@ import 'package:get/get_core/get_core.dart';
 import 'package:get/get_navigation/get_navigation.dart';
 import 'package:chasse_marche_app/widgets/widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+
+Future<String> authenticate(String email, String password) async {
+  final String apiUrl = 'http://localhost:8000/api/login_check';
+  final response = await http.post(
+    Uri.parse(apiUrl),
+    headers: {'Content-Type': 'application/json'},
+    body: jsonEncode({'email': email, 'password': password}),
+  );
+
+  if (response.statusCode == 200) {
+    Map<String, dynamic> jsonResponse = jsonDecode(response.body);
+    return jsonResponse['token'];
+  } else {
+    throw Exception('Failed to authenticate');
+  }
+}
+
 
 class LoginPage extends StatefulWidget {
   @override
@@ -20,6 +41,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   late String value;
+
+  final storage = FlutterSecureStorage();
 
   void initState() {
     getemail();
@@ -140,8 +163,31 @@ class _LoginPageState extends State<LoginPage> {
                       backgroundColor: const Color(0xff4c505b),
                       child: IconButton(
                         color: Colors.white,
-                        onPressed: () {getemail();
-                        sharedget();},
+                        onPressed: () async {
+                          try {
+                            final token = await authenticate(email.text, password.text);
+                            print('JWT Token: $token');
+                            // Store the token securely
+                            await storage.write(key: 'jwt_token', value: token);
+                            // Navigate to the next page
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AccueilPage(title: 'Home'),
+                              ),
+                            );
+                          } catch (e) {
+                            print(e);
+                            final snack = SnackBar(
+                              backgroundColor: Colors.red,
+                              content: Text(
+                                "Wrong details",
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(snack);
+                          }
+                        },
                         icon: const Icon(Icons.arrow_forward),
                       ),
                     ),

@@ -46,8 +46,8 @@ dependencies:
   location_picker_flutter_map: any
   mapbox_search: ^1.0.1
   mapbox_gl: any
-
-  
+  http: ^0.13.5
+  flutter_secure_storage: ^8.0.0
 
 dev_dependencies:
   flutter_test:

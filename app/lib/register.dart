@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'dart:ffi';
 
 import 'package:chasse_marche_app/LoginPage.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 class MyRegister extends StatefulWidget {
   const MyRegister({Key? key}) : super(key: key);
@@ -84,6 +86,30 @@ class _MyRegisterState extends State<MyRegister> {
     pref.setString(name, _controler[name]!.text);
   }
 
+  Future<bool> registerUser(Map<String, String> userData) async {
+    final response = await http.post(
+      Uri.parse('http://localhost:8000/register'),
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode(userData),
+    );
+
+    if (response.statusCode == 201) {
+      // Registration successful
+      print('Registration successful');
+      return true;
+    } else {
+      // Registration failed
+      print('Registration failed with status code: ${response.statusCode}');
+      print('Error: ${response.body}');
+      return false;
+    }
+  }
+  void _showSnackBar(BuildContext context, String message) {
+    final snackBar = SnackBar(content: Text(message));
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -160,12 +186,25 @@ class _MyRegisterState extends State<MyRegister> {
                                     "username": _controler["username"]!.text,
                                     "name": _controler["name"]!.text,
                                     "surname": _controler["surname"]!.text,
-                                    "date de naissance": _controler["date de naissance"]!.text,
+                                    "date_de_naissance": _controler["date de naissance"]!.text,
                                     "phone": _controler["phone"]!.text,
                                     "address": _controler["address"]!.text,
                                   });
-                                  print(json.toString());
-                                  state = 0;
+                                  registerUser(json.map((key, value) => MapEntry<String, String>(key, value.toString()))).then((success) {
+                                    if (success) {
+                                      _showSnackBar(context, 'Registration successful'); // Show the success message
+                                      Future.delayed(Duration(seconds: 2), () {
+                                        // Navigate to the login page after a 2-second delay
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) {
+                                          return LoginPage();
+                                        }));
+                                      });
+                                    } else {
+                                      // Show an error message or handle the error as needed
+                                      print('Registration failed');
+                                      state = 0;
+                                    }
+                                  });
                                 });
                                 break;
                             }

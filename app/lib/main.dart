@@ -1,4 +1,4 @@
-import 'package:chasse_marche_app/CartePage.dart';
+import 'CartePage.dart';
 import 'package:chasse_marche_app/LoginPage.dart';
 import 'package:chasse_marche_app/carte.dart';
 import 'package:flutter/material.dart';
@@ -20,7 +20,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: LoginPage(),
+      home: CartePage(title:"Carte"),
     );
   }
 }

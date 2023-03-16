@@ -6,22 +6,10 @@ import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:mapbox_search/mapbox_search.dart' hide LatLong;
-import 'package:mapbox_gl/mapbox_gl.dart';
+import 'package:mapbox_gl/mapbox_gl.dart' hide LatLng;
+import 'package:mapbox_search_flutter/mapbox_search_flutter.dart';
 
 
-final MapBoxPlaceSearchProvider mapBoxSearch = MapBoxPlaceSearchProvider(
-  apiKey: 'pk.abc1234567890XYZ',
-);
-
-Future<List<MapBoxPlace>> search(String query,
-    {int limit = 5, String? language}) async {
-  return await mapBoxSearch.search(
-    query,
-    limit: limit,
-    language: language,
-  );
-}
 
 
 class Carte extends StatefulWidget {
@@ -84,17 +72,7 @@ class _CarteState extends State<Carte> {
     });
   }
 
-  void _onSearch(String query) async {
-    List<MapBoxPlace> places = await MapBoxPlaceSearchProvider()
-        .search(query, limit: 5, language: 'en');
-    if (places.isNotEmpty) {
-      mapController.move(
-        LatLng(places.first.geometry!.coordinates[1],
-            places.first.geometry!.coordinates[0]),
-        15.0,
-      );
-    }
-  }
+
   @override
   void initState() {
     super.initState();
@@ -116,15 +94,20 @@ class _CarteState extends State<Carte> {
             currentLocation = snapshot.data!;
             return Scaffold(
               appBar: AppBar(
-                title: TextField(
-                  controller: searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search for a location',
-                    border: InputBorder.none,
+                title: MapBoxPlaceSearchWidget(
+                    popOnSelect: true,
+                    apiKey: 'pk.eyJ1IjoieGJhdHRsYXgiLCJhIjoiY2xmYmpyd2NxMXc0eDNycGMyemNxOXMzOCJ9.NO3mg8yWSpf0HBgcf3coeA',
+                    height: 10,
+                    onSelected: (place) {
+                      mapController.move(
+                        LatLng(place.geometry.coordinates[1], place.geometry.coordinates[0]),
+                        15.0,
+                      );
+                    },
                   ),
-                  onSubmitted: _onSearch,
                 ),
-              ),
+
+
               body: FlutterMap(
                 options: MapOptions(
                   center: currentLocation,

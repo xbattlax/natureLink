@@ -30,7 +30,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: Colors.teal, // set primary color to blue
+        fontFamily: 'Roboto', // set font family to Roboto
       ),
 
       home: CartePage(title:"Carte"),

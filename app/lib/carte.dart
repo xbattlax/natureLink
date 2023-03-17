@@ -140,7 +140,7 @@ class _CarteState extends State<Carte> {
                       Polyline(
                         points: polylinePoints,
                         color: Colors.black,
-                        strokeWidth: 3,
+                        strokeWidth: 4,
                       ),
                     ],
                   ),
@@ -148,6 +148,7 @@ class _CarteState extends State<Carte> {
                     polygonCulling: false,
                     polygons: [
                       Polygon(
+                        borderStrokeWidth:4,
                         points: polygonPoints,
                         color: Colors.black,
                       ),

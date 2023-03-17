@@ -10,7 +10,7 @@ class BlogPreviewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(article.title),
+        title: Text(article.titre),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -36,13 +36,13 @@ class BlogPreviewPage extends StatelessWidget {
                 )).toList(),
               ),
             Text(
-              article.title,
+              article.titre,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
               ),
             ),
             Text(
-              '${article.publicationDate.day}/${article.publicationDate.month}/${article.publicationDate.year}',
+              '${article.DateDePublication.day}/${article.DateDePublication.month}/${article.DateDePublication.year}',
               style: TextStyle(
                 color: Colors.grey[600],
                 fontStyle: FontStyle.italic,
@@ -50,7 +50,7 @@ class BlogPreviewPage extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text(
-              article.content,
+              article.Contenu,
               style: TextStyle(
                 color: Colors.grey[800],
               ),

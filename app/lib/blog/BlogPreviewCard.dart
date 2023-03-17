@@ -29,14 +29,14 @@ class BlogPreviewCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  article.title,
+                  article.titre,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 SizedBox(height: 8),
                 Text(
-                  '${article.publicationDate.day}/${article.publicationDate.month}/${article.publicationDate.year}',
+                  '${article.DateDePublication.day}/${article.DateDePublication.month}/${article.DateDePublication.year}',
                   style: TextStyle(
                     color: Colors.grey[600],
                     fontStyle: FontStyle.italic,
@@ -44,7 +44,7 @@ class BlogPreviewCard extends StatelessWidget {
                 ),
                 SizedBox(height: 8),
                 Text(
-                  article.content.substring(0, min(100, article.content.length)) + '...',
+                  article.Contenu.substring(0, min(100, article.Contenu.length)) + '...',
                   style: TextStyle(
                     color: Colors.grey[800],
                   ),

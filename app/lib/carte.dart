@@ -150,7 +150,8 @@ class _CarteState extends State<Carte> {
                       Polygon(
                         borderStrokeWidth:4,
                         points: polygonPoints,
-                        color: Colors.black,
+                        color: Colors.red,
+                        isFilled: true,
                       ),
                     ],
                   ),

@@ -1,5 +1,6 @@
-import 'package:chasse_marche_app/AccueilPage.dart';
-import 'package:chasse_marche_app/login_screen.dart';
+
+import 'blog/BlogListPage.dart';
+import 'login_screen.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -15,18 +16,28 @@ class BottomNavScreenSelection extends StatefulWidget {
 }
 
 class _BottomNavScreenSelectionState extends State<BottomNavScreenSelection> {
-  int _selectedIndex = 0;
+  int _selectedIndex = 1;
   String sharedPreferenceIndexKey = "Index";
-  var pages = [
-    const AccueilPage(title: "Home"),
-    const CartePage(title: "Carte"),
-    const LoginScreen(),
-  ];
+  List<Widget> pages = [];
 
   @override
   void initState() {
+    pages = [
+      BlogListPage(onError: (errorMessage) => _onError(context, errorMessage)),
+      const CartePage(title: "Carte"),
+      const LoginScreen(),
+    ];
     getCurrentIndex();
     super.initState();
+  }
+
+  void _onError(BuildContext context, String errorMessage) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(errorMessage),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
 
   /// get last index saved in shared preferences
@@ -60,8 +71,8 @@ class _BottomNavScreenSelectionState extends State<BottomNavScreenSelection> {
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+            icon: Icon(Icons.article),
+            label: 'article',
             backgroundColor: Colors.red,
           ),
 

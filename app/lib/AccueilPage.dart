@@ -1,4 +1,3 @@
-import 'package:chasse_marche_app/widgets/BottomNav.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -45,7 +44,6 @@ class _AccueilPageState extends State<AccueilPage> {
 
         ],
       ),
-        bottomNavigationBar:const BottomNav()
     );
   }
 }

@@ -1,5 +1,4 @@
 import 'package:chasse_marche_app/CartePage.dart';
-import 'package:chasse_marche_app/LoginPage.dart';
 import 'package:chasse_marche_app/bottom_navigation_screen_selection.dart';
 import 'package:chasse_marche_app/carte.dart';
 import 'package:flutter/material.dart';

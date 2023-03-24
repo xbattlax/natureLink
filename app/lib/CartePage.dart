@@ -1,5 +1,4 @@
 
-import 'package:chasse_marche_app/widgets/BottomNav.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -32,7 +31,6 @@ class _CartePageState extends State<CartePage> {
         title: Text(widget.title),
       ),
       body: Carte(),
-        bottomNavigationBar:const BottomNav()
     );
   }
 }

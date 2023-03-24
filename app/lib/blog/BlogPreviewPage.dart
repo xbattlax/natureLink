@@ -10,7 +10,7 @@ class BlogPreviewPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(article.titre),
+        title: Text(article.title),
       ),
       body: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -36,7 +36,7 @@ class BlogPreviewPage extends StatelessWidget {
                 )).toList(),
               ),
             Text(
-              article.titre,
+              article.title,
               style: TextStyle(
                 fontWeight: FontWeight.bold,
               ),
@@ -50,7 +50,7 @@ class BlogPreviewPage extends StatelessWidget {
             ),
             SizedBox(height: 8),
             Text(
-              article.Contenu,
+              article.content,
               style: TextStyle(
                 color: Colors.grey[800],
               ),

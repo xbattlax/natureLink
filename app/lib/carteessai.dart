@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:chasse_marche_app/widgets/BottomNav.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';

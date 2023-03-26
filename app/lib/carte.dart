@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'Models/user.dart';
+import 'bottom_navigation_screen_selection.dart';
 import 'constantes.dart';
 
 class Poly {
@@ -58,7 +59,6 @@ Future<List<Poly>> getAllPolygons() async {
         long: double.parse(sommetData['longitude']),
       ))
           .toList();
-      print(sommets);
       return Poly(sommets: sommets);
     }).toList();
     return polygons;
@@ -71,7 +71,7 @@ Future<List<Poly>> getAllPolygons() async {
 }
 
 
-Future<bool> savePolygon(List<LatLng> polygonPoints) async {
+Future<Poly?> savePolygon(List<LatLng> polygonPoints) async {
   final url = '$apiUrl/api/polygon'; // Replace with your API URL
 
   // Read the JWT token from storage
@@ -93,13 +93,6 @@ Future<bool> savePolygon(List<LatLng> polygonPoints) async {
     'sommets': sommets,
   });
 
-  print('''
-curl -X POST \\
-     -H "Content-Type: application/json" \\
-     -H "Authorization: Bearer $token" \\
-     -d '$body' \\
-     $url
-  ''');
 
   final response = await http.post(
     Uri.parse(url),
@@ -109,12 +102,21 @@ curl -X POST \\
 
   if (response.statusCode == 200 || response.statusCode == 201) {
     print('Polygon saved successfully');
-    return true;
+    // Decode the response body and convert it to a Poly object
+    dynamic responseBody = json.decode(response.body);
+    List<Sommet> sommets = (responseBody['sommets'] as List<dynamic>)
+        .map((sommetData) => Sommet(
+      id : 1,// Parse the id as an int
+      lat: double.parse(sommetData['lat']), // Parse the latitude as a double
+      long: double.parse(sommetData['long']), // Parse the longitude as a double
+    ))
+        .toList();
+    return Poly(sommets: sommets);
   } else {
     print('Failed to save polygon');
     print('Status code: ${response.statusCode}');
     print('Body: ${response.body}');
-    return false;
+    return null;
   }
 }
 
@@ -300,11 +302,19 @@ class _CarteState extends State<Carte> {
                         _addingPolygon = !_addingPolygon;
                       });
                       if (!_addingPolygon) {
-                        bool success = await savePolygon(polygonPoints); // Save the polygon to the API
-                        if (success) {
+                        Poly? newPoly = await savePolygon(polygonPoints); // Save the polygon to the API
+                        if (newPoly != null) {
                           setState(() {
+                            _polygons.add(newPoly); // Add the new polygon to the list
                             polygonPoints.clear(); // Clear the points after saving the polygon
                           });
+                          // refresh the page
+
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => BottomNavScreenSelection()),
+                                (Route<dynamic> route) => false,
+                          );
                         }
                       }
                     },

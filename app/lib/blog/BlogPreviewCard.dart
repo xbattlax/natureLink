@@ -6,65 +6,46 @@ import 'dart:math';
 class BlogPreviewCard extends StatelessWidget {
   final BlogArticle article;
 
-  const BlogPreviewCard({required this.article});
+  BlogPreviewCard({required this.article});
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BlogPreviewPage(article: article),
-            ),
-          );
-        },
-        child: Stack(
-          children: [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  article.title,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  '${article.DateDePublication.day}/${article.DateDePublication.month}/${article.DateDePublication.year}',
-                  style: const TextStyle(
-                    color: Colors.grey,
-                    fontStyle: FontStyle.italic,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  article.content.substring(0, min(100, article.content.length)) + '...',
-                  style: const TextStyle(
-                    color: Colors.grey,
-                  ),
-                ),
-                const SizedBox(height: 8),
-              ],
-            ),
-            Positioned(
-              top: 8,
-              right: 8,
-              child: Row(
-                children: article.tags.map((tag) => TagWidget(tag: tag)).toList(),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => BlogPreviewPage(article: article),
+          ),
+        );
+      },
+      child: Card(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                article.title,
+                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
               ),
-            ),
-          ],
+              SizedBox(height: 8),
+              Text(article.content),
+              SizedBox(height: 8),
+              Wrap(
+                children: article.tags
+                    .map((tag) => Chip(label: Text(tag)))
+                    .toList(),
+              ),
+
+            ],
+          ),
         ),
       ),
     );
   }
 }
+
 
 class TagWidget extends StatelessWidget {
   final String tag;

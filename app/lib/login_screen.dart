@@ -205,8 +205,12 @@ class _LoginScreenState extends State<LoginScreen> {
       final storage = FlutterSecureStorage();
       await storage.write(key: 'jwt_token', value: token);
 
+
       final currentUser = await getCurrentUser(token);
-      print('currentUser: $currentUser');
+      List<dynamic> currentUserRoles = currentUser['roles'];
+      List<String> roles = currentUserRoles.cast<String>();
+      await storage.write(key: 'roles', value: jsonEncode(roles));
+
       setState(() { user = User(
         email: currentUser['email'],
         address: currentUser['address'],
@@ -215,6 +219,7 @@ class _LoginScreenState extends State<LoginScreen> {
         phone: currentUser['phone'],
         surname: currentUser['surname'],
         pseudo: currentUser['pseudo'],
+        roles: roles,
       );
         storage.write(key: 'user', value: jsonEncode(user));
       });
@@ -266,6 +271,7 @@ class _LoginScreenState extends State<LoginScreen> {
         phone: data.additionalSignupData!['phone']!,
         surname: data.additionalSignupData!['surname']!,
         pseudo: data.additionalSignupData!['pseudo']!,
+        roles : ['ROLE_USER'],
       );
     });
     return null;

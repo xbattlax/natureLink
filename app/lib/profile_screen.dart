@@ -1,7 +1,10 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
+import 'bottom_navigation_screen_selection.dart';
+import 'login_screen.dart';
 import 'models/user.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -24,10 +27,28 @@ class ProfileScreen extends StatelessWidget {
         backgroundColor: Colors.green[900],
         elevation: 0,
         actions: [
-          IconButton(onPressed: (){}, icon: Icon(Icons.logout))
+          IconButton(
+            icon: Icon(Icons.logout),
+            onPressed: () => _logout(context),
+          ),
         ],
       ),
       body: _buildList(),
+    );
+  }
+
+  void _logout(BuildContext context) async {
+    final storage = FlutterSecureStorage();
+
+    // Clear stored user data
+    await storage.delete(key: 'jwt_token');
+    await storage.delete(key: 'user');
+
+    // Navigate back to the LoginScreen
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => BottomNavScreenSelection()),
+          (Route<dynamic> route) => false,
     );
   }
 
@@ -105,7 +126,8 @@ class ProfileScreen extends StatelessWidget {
       ),
       child: Center(
         child: Text(
-          user.isHunter ? "CHASSEUR" : "PROMENEUR",
+
+          getUserRole(user.roles),
           style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
@@ -115,6 +137,15 @@ class ProfileScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String getUserRole(List<dynamic>? roles) {
+
+    if (roles == null) {
+      return "PROMENEUR";
+    }
+
+    return roles.contains("ROLE_CHASSEUR") ? "CHASSEUR" : "PROMENEUR";
   }
 
   Widget _buildEmailListTile(){

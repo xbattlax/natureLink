@@ -7,8 +7,8 @@ class User {
   final String phone;
   final String birthDate;
   final String address;
-  final bool isHunter;
   final String? facebookUserName;
+  final List<dynamic> roles;
 
   User({
     this.pseudo = "",
@@ -18,8 +18,8 @@ class User {
     this.phone = "",
     this.birthDate = "",
     this.address = "",
-    this.isHunter = false,
     this.facebookUserName,
+    this.roles= const [],
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -31,10 +31,12 @@ class User {
       phone: json['phone'] ?? '',
       birthDate: json['birthDate'] ?? '',
       address: json['address'] ?? '',
-      isHunter: json['isHunter'] ?? false,
       facebookUserName: json['facebookUserName'],
+      roles: json['roles'],
     );
   }
+
+
 
   Map<String, dynamic> toJson() => {
     'pseudo': pseudo,
@@ -44,8 +46,8 @@ class User {
     'phone': phone,
     'birthDate': birthDate,
     'address': address,
-    'isHunter': isHunter,
     'facebookUserName': facebookUserName,
+    'roles': roles,
   };
 
 }

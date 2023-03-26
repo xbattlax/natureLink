@@ -3,18 +3,121 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map/plugin_api.dart';
 import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mapbox_gl/mapbox_gl.dart' hide LatLng;
 import 'package:mapbox_search_flutter/mapbox_search_flutter.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
+import 'Models/user.dart';
 
+class Poly {
+  final List<Sommet> sommets;
 
+  Poly({required this.sommets});
+
+  List<LatLng> get latLngs => sommets.map((sommet) => sommet.latLng).toList();
+}
+
+class Sommet {
+  final int id;
+  final double lat;
+  final double long;
+
+  Sommet({required this.id, required this.lat, required this.long});
+
+  LatLng get latLng => LatLng(lat, long);
+}
 
 class Carte extends StatefulWidget {
   @override
   _CarteState createState() => _CarteState();
 }
+
+Future<List<Poly>> getAllPolygons() async {
+  final url = 'http://localhost:8000/public/polygons'; // Replace with your API URL
+  final headers = {
+    'Content-Type': 'application/json',
+  };
+
+  final response = await http.get(
+    Uri.parse(url),
+    headers: headers,
+  );
+
+  if (response.statusCode == 200) {
+    List<dynamic> responseBody = json.decode(response.body);
+    List<Poly> polygons = responseBody.map((polygonData) {
+      List<Sommet> sommets = (polygonData['sommets'] as List<dynamic>)
+          .map((sommetData) => Sommet(
+        id: sommetData['id'],
+        lat: double.parse(sommetData['lat']),
+        long: double.parse(sommetData['long']),
+      ))
+          .toList();
+      print(sommets);
+      return Poly(sommets: sommets);
+    }).toList();
+    return polygons;
+  } else {
+    print('Failed to get polygons');
+    print('Status code: ${response.statusCode}');
+    print('Body: ${response.body}');
+    return [];
+  }
+}
+
+
+Future<bool> savePolygon(List<LatLng> polygonPoints) async {
+  final url = 'http://localhost:8000/api/polygon'; // Replace with your API URL
+
+  // Read the JWT token from storage
+  final storage = FlutterSecureStorage();
+  String? token = await storage.read(key: 'jwt_token');
+
+  // Include the JWT token in the headers
+  final headers = {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer $token', // Add the token to the headers
+  };
+
+  final sommets = polygonPoints.map((point) => {
+    'lat': point.latitude,
+    'long': point.longitude,
+  }).toList();
+
+  final body = json.encode({
+    'sommets': sommets,
+  });
+
+  print('''
+curl -X POST \\
+     -H "Content-Type: application/json" \\
+     -H "Authorization: Bearer $token" \\
+     -d '$body' \\
+     $url
+  ''');
+
+  final response = await http.post(
+    Uri.parse(url),
+    headers: headers,
+    body: body,
+  );
+
+  if (response.statusCode == 200 || response.statusCode == 201) {
+    print('Polygon saved successfully');
+    return true;
+  } else {
+    print('Failed to save polygon');
+    print('Status code: ${response.statusCode}');
+    print('Body: ${response.body}');
+    return false;
+  }
+}
+
+
 
 class _CarteState extends State<Carte> {
   final MapController mapController = MapController();
@@ -24,6 +127,18 @@ class _CarteState extends State<Carte> {
   List<LatLng> polylinePoints = [];
   bool _addingPolygon = false;
   bool _addingPolyline = false;
+  List<Poly> _polygons = [];
+  bool isChasseur = false;
+
+  Future<void> _fetchAndDrawPolygons() async {
+    List<Poly> polygons = await getAllPolygons();
+    setState(() {
+      _polygons = polygons.map((polygon) {
+        List<Sommet> sommets = polygon.sommets.map((sommet)=> Sommet(id: sommet.id, lat: sommet.lat, long: sommet.long)).toList();
+        return Poly(sommets: sommets);
+      }).toList();
+    });
+  }
 
   Future<void> _getPermission() async {
     LocationPermission permission = await Geolocator.requestPermission();
@@ -61,21 +176,35 @@ class _CarteState extends State<Carte> {
     });
   }
 
-  void _handleTap(LatLng latlng) {
-    setState(() {
-      if (_addingPolygon) {
-        _addPolygonPoint(latlng);
-      } else if (_addingPolyline) {
+  void _handleTap(LatLng latlng) async {
+    if (_addingPolygon) {
+      _addPolygonPoint(latlng);
+    } else if (_addingPolyline) {
+      setState(() {
         _addPolylinePoint(latlng);
+      });
+    }
+  }
+  Future<void> getRoles() async {
+    final secureStorage = FlutterSecureStorage();
+    secureStorage.read(key: 'roles').then((value) {
+      if (value != null) {
+        List<dynamic> roles = jsonDecode(value);
+        if (roles.contains('ROLE_CHASSEUR')) {
+          setState(() {
+            isChasseur = true;
+          });
+        }
       }
     });
   }
-
 
   @override
   void initState() {
     super.initState();
     _getPermission();
+    _fetchAndDrawPolygons();
+    getRoles();
   }
 
   Future<LatLng> getCurrentLocation() async {
@@ -109,7 +238,8 @@ class _CarteState extends State<Carte> {
 
               body: FlutterMap(
                 options: MapOptions(
-                  center: currentLocation,
+                  //center: currentLocation,
+                  center : LatLng(48.1012, 6.4003),
                   zoom: 13.0,
                   keepAlive: true,
                   onTap: (point, latlng) {
@@ -145,18 +275,21 @@ class _CarteState extends State<Carte> {
                   ),
                   PolygonLayer(
                     polygonCulling: false,
-                    polygons: [
-                      Polygon(
-                        borderStrokeWidth:4,
-                        points: polygonPoints,
-                        color: Colors.red,
+                    polygons: _polygons.map((Poly) {
+                      return Polygon(
+                        borderStrokeWidth: 4,
+                        points: Poly.sommets.map((sommet) => LatLng(sommet.lat, sommet.long)).toList(),
+                        color: Colors.red.withOpacity(0.5),
                         isFilled: true,
-                      ),
-                    ],
+                      );
+                    }).toList(),
                   ),
                 ],
               ),
-              floatingActionButton: Column(
+              // if user.roles == 'ROLE_CHASSEUR' then
+
+
+              floatingActionButton:  isChasseur ?  Column(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
                   FloatingActionButton(
@@ -164,6 +297,10 @@ class _CarteState extends State<Carte> {
                     onPressed: () {
                       setState(() {
                         _addingPolygon = !_addingPolygon;
+                        if (!_addingPolygon) {
+                          savePolygon(polygonPoints); // Save the polygon to the API
+                          polygonPoints.clear(); // Clear the points after saving the polygon
+                        }
                       });
                     },
                     child: Icon(_addingPolygon ? Icons.check : Icons.add),
@@ -179,7 +316,7 @@ class _CarteState extends State<Carte> {
                     child: Icon(_addingPolyline ? Icons.check : Icons.add),
                   ),
                 ],
-              ),
+              ) : Container(),
             );
           } else {
             return Center(child: Text('Failed to get current location'));

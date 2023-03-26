@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import '../constantes.dart';
 import 'BlogArticle.dart';
 import 'BlogPreviewPage.dart';
 import 'package:http/http.dart' as http;
@@ -71,7 +72,7 @@ Future<String> getToken() async {
 
 Future<List<BlogArticle>> fetchArticles() async {
   final response = await http.get(
-    Uri.parse('http://localhost:8000/public/articles'),
+    Uri.parse('$apiUrl/public/articles'),
     headers: {
       'accept': 'application/json',
     },

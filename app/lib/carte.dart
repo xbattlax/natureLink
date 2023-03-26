@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'Models/user.dart';
+import 'constantes.dart';
 
 class Poly {
   final List<Sommet> sommets;
@@ -37,7 +38,7 @@ class Carte extends StatefulWidget {
 }
 
 Future<List<Poly>> getAllPolygons() async {
-  final url = 'http://localhost:8000/public/polygons'; // Replace with your API URL
+  final url = '$apiUrl/public/polygons'; // Replace with your API URL
   final headers = {
     'Content-Type': 'application/json',
   };
@@ -53,8 +54,8 @@ Future<List<Poly>> getAllPolygons() async {
       List<Sommet> sommets = (polygonData['sommets'] as List<dynamic>)
           .map((sommetData) => Sommet(
         id: sommetData['id'],
-        lat: double.parse(sommetData['lat']),
-        long: double.parse(sommetData['long']),
+        lat: double.parse(sommetData['latitude']),
+        long: double.parse(sommetData['longitude']),
       ))
           .toList();
       print(sommets);
@@ -71,7 +72,7 @@ Future<List<Poly>> getAllPolygons() async {
 
 
 Future<bool> savePolygon(List<LatLng> polygonPoints) async {
-  final url = 'http://localhost:8000/api/polygon'; // Replace with your API URL
+  final url = '$apiUrl/api/polygon'; // Replace with your API URL
 
   // Read the JWT token from storage
   final storage = FlutterSecureStorage();
@@ -294,14 +295,18 @@ class _CarteState extends State<Carte> {
                 children: [
                   FloatingActionButton(
                     backgroundColor: Colors.lightGreen,
-                    onPressed: () {
+                    onPressed: () async {
                       setState(() {
                         _addingPolygon = !_addingPolygon;
-                        if (!_addingPolygon) {
-                          savePolygon(polygonPoints); // Save the polygon to the API
-                          polygonPoints.clear(); // Clear the points after saving the polygon
-                        }
                       });
+                      if (!_addingPolygon) {
+                        bool success = await savePolygon(polygonPoints); // Save the polygon to the API
+                        if (success) {
+                          setState(() {
+                            polygonPoints.clear(); // Clear the points after saving the polygon
+                          });
+                        }
+                      }
                     },
                     child: Icon(_addingPolygon ? Icons.check : Icons.add),
                   ),

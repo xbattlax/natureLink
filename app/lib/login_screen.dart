@@ -4,6 +4,7 @@ import 'package:flutter_login/flutter_login.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'constantes.dart';
 import 'models/user.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -35,9 +36,9 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<String> authenticate(String email, String password) async {
-    final String apiUrl = 'http://localhost:8000/api/login_check';
+    final String apiUri = '$apiUrl/api/login_check';
     final response = await http.post(
-      Uri.parse(apiUrl),
+      Uri.parse(apiUri),
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({'email': email, 'password': password}),
     );
@@ -52,7 +53,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<bool> registerUser(Map<String, String> userData) async {
     final response = await http.post(
-      Uri.parse('http://localhost:8000/register'),
+      Uri.parse('$apiUrl/register'),
       headers: {
         'Content-Type': 'application/json',
       },
@@ -279,7 +280,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<Map<String, dynamic>> getCurrentUser(String token) async {
     final response = await http.get(
-      Uri.parse('http://localhost:8000/api/current_user'),
+      Uri.parse('$apiUrl/api/current_user'),
       headers: {
         'Authorization': 'Bearer $token',
         'accept': 'application/ld+json',

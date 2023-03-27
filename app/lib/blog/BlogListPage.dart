@@ -41,7 +41,7 @@ class BlogListPage extends StatelessWidget {
       floatingActionButton: FutureBuilder<String>(
         future: getToken(),
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.data != '') {
+          if (snapshot.connectionState == ConnectionState.done && snapshot.data != '') {
             return FloatingActionButton(
               onPressed: () {
                 Navigator.push(
@@ -63,12 +63,10 @@ class BlogListPage extends StatelessWidget {
 }
 
 Future<String> getToken() async {
-  FlutterSecureStorage().read(key: 'jwt_token').then((value) {
-    print(value);
-    return value;
-  });
-  return '';
+  String? value = await FlutterSecureStorage().read(key: 'jwt_token');
+  return value ?? '';
 }
+
 
 Future<List<BlogArticle>> fetchArticles() async {
   final response = await http.get(

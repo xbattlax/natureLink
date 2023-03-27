@@ -1,7 +1,10 @@
 import 'dart:convert';
 
+import 'package:chasse_marche_app/constantes.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import '../constantes.dart';
 
 
 class BlogArticleForm extends StatefulWidget {
@@ -14,6 +17,40 @@ class _BlogArticleFormState extends State<BlogArticleForm> {
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _contentController = TextEditingController();
   final TextEditingController _tagsController = TextEditingController();
+
+  Future<void> _postArticle(String title, String content, List<String> tags) async {
+    final url = '$apiUrl/api/article/post';
+
+    final storage = FlutterSecureStorage();
+    String? token = await storage.read(key: 'jwt_token');
+
+    final headers = {
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+      'Authorization': 'Bearer $token',
+    };
+    final body = jsonEncode({
+      'title': title,
+      'content': content,
+      'tags': tags.join(','),
+    });
+
+    try {
+      final response = await http.post(Uri.parse(url), headers: headers, body: body);
+
+      if (response.statusCode == 201) {
+        // Show a success message, e.g., using a SnackBar
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Article créé avec succès')));
+      } else {
+        // Handle the error
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur lors de la création de l\'article')));
+      }
+    } catch (e) {
+      // Handle exceptions
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur lors de la création de l\'article')));
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -64,12 +101,12 @@ class _BlogArticleFormState extends State<BlogArticleForm> {
               ),
               SizedBox(height: 16),
               ElevatedButton(
-                onPressed: () {
+                onPressed: () async {
                   if (_formKey.currentState!.validate()) {
                     final title = _titleController.text;
                     final content = _contentController.text;
                     final tags = _tagsController.text.split(',').map((tag) => tag.trim()).toList();
-                    // Enregistrer le nouvel article ici
+                    await _postArticle(title, content, tags);
                     Navigator.pop(context);
                   }
                 },

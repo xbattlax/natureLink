@@ -21,7 +21,6 @@ class _CarteState extends State<Carte> {
   Future<void> _getPermission() async {
     LocationPermission permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied) {
-      // Show a dialog to the user asking them to enable location permissions in the app settings.
       await showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -36,7 +35,6 @@ class _CarteState extends State<Carte> {
         ),
       );
     } else if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-      // Permission granted, so do nothing.
     }
   }
 
@@ -129,21 +127,21 @@ class _CarteState extends State<Carte> {
                     onTap: () async {
                       LatLng currentLocation = await getCurrentLocation();
                       _addPolygonPoint(currentLocation);
-                      print("Polygon Points: $polygonPoints"); // print the polygon points
+                      print("Polygon Points: $polygonPoints");
                     },
                     child: FloatingActionButton(
-                      backgroundColor: Colors.blue, // add a background color to the button
-                      onPressed: () {}, // Empty onPressed to avoid warnings
+                      backgroundColor: Colors.blue,
+                      onPressed: () {},
                       child: Icon(Icons.add),
                     ),
                   ),
                   SizedBox(height: 16),
                   FloatingActionButton(
-                    backgroundColor: Colors.blue, // add a background color to the button
+                    backgroundColor: Colors.blue,
                     onPressed: () async {
                       LatLng currentLocation = await getCurrentLocation();
                       _addPolylinePoint(currentLocation);
-                      print("Polyline Points: $polylinePoints"); // print the polyline points
+                      print("Polyline Points: $polylinePoints");
                     },
                     child: Icon(Icons.add),
                   ),

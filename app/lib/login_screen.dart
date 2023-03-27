@@ -227,9 +227,8 @@ class _LoginScreenState extends State<LoginScreen> {
       // Return null to indicate successful authentication
       return null;
     } catch (e) {
-      print('Error: $e');
       // Return an error message if authentication fails
-      return 'Failed to authenticate';
+      return 'Mot de passe ou identifiant incorrect';
     }
   }
 

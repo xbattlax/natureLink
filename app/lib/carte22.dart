@@ -21,7 +21,6 @@ class _CarteState extends State<Carte> {
   Future<void> _getPermission() async {
     LocationPermission permission = await Geolocator.requestPermission();
     if (permission == LocationPermission.denied) {
-      // Show a dialog to the user asking them to enable location permissions in the app settings.
       await showDialog(
         context: context,
         builder: (context) => AlertDialog(
@@ -36,7 +35,6 @@ class _CarteState extends State<Carte> {
         ),
       );
     } else if (permission == LocationPermission.whileInUse || permission == LocationPermission.always) {
-      // Permission granted, so do nothing.
     }
   }
 

@@ -12,6 +12,7 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 import 'Models/user.dart';
+import 'blog/BlogListPage.dart';
 import 'bottom_navigation_screen_selection.dart';
 import 'constantes.dart';
 
@@ -246,7 +247,6 @@ class _CarteState extends State<Carte> {
                   zoom: 13.0,
                   keepAlive: true,
                   onTap: (point, latlng) {
-                    // Add a new point when the user taps on the map
                     setState(() {
                       _handleTap(latlng);
                     });
@@ -289,49 +289,58 @@ class _CarteState extends State<Carte> {
                   ),
                 ],
               ),
-              // if user.roles == 'ROLE_CHASSEUR' then
 
 
-              floatingActionButton:  isChasseur ?  Column(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  FloatingActionButton(
-                    backgroundColor: Colors.lightGreen,
-                    onPressed: () async {
-                      setState(() {
-                        _addingPolygon = !_addingPolygon;
-                      });
-                      if (!_addingPolygon) {
-                        Poly? newPoly = await savePolygon(polygonPoints); // Save the polygon to the API
-                        if (newPoly != null) {
-                          setState(() {
-                            _polygons.add(newPoly); // Add the new polygon to the list
-                            polygonPoints.clear(); // Clear the points after saving the polygon
-                          });
-                          // refresh the page
-
-                          Navigator.pushAndRemoveUntil(
-                            context,
-                            MaterialPageRoute(builder: (context) => BottomNavScreenSelection()),
-                                (Route<dynamic> route) => false,
-                          );
-                        }
-                      }
-                    },
-                    child: Icon(_addingPolygon ? Icons.check : Icons.add),
-                  ),
-                  SizedBox(height: 16),
-                  FloatingActionButton(
-                    backgroundColor: Colors.green,
-                    onPressed: () {
-                      setState(() {
-                        _addingPolyline = !_addingPolyline;
-                      });
-                    },
-                    child: Icon(_addingPolyline ? Icons.check : Icons.add),
-                  ),
-                ],
-              ) : Container(),
+              floatingActionButton: isChasseur
+                  ? FutureBuilder<String?>(
+                future: getToken(),
+                builder: (context, snapshot) {
+                  if (snapshot.data != null && snapshot.data!.isNotEmpty) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.end,
+                      children: [
+                        FloatingActionButton(
+                          backgroundColor: Colors.lightGreen,
+                          onPressed: () async {
+                            setState(() {
+                              _addingPolygon = !_addingPolygon;
+                            });
+                            if (!_addingPolygon) {
+                              Poly? newPoly = await savePolygon(polygonPoints);
+                              if (newPoly != null) {
+                                setState(() {
+                                  _polygons.add(newPoly);
+                                  polygonPoints.clear();
+                                });
+                                Navigator.pushAndRemoveUntil(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => BottomNavScreenSelection()),
+                                      (Route<dynamic> route) => false,
+                                );
+                              }
+                            }
+                          },
+                          child: Icon(_addingPolygon ? Icons.check : Icons.add),
+                        ),
+                        SizedBox(height: 16),
+                        FloatingActionButton(
+                          backgroundColor: Colors.green,
+                          onPressed: () {
+                            setState(() {
+                              _addingPolyline = !_addingPolyline;
+                            });
+                          },
+                          child: Icon(_addingPolyline ? Icons.check : Icons.add),
+                        ),
+                      ],
+                    );
+                  } else {
+                    return Container();
+                  }
+                },
+              )
+                  : Container(),
             );
           } else {
             return Center(child: Text('Failed to get current location'));

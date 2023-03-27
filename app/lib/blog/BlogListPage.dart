@@ -32,7 +32,6 @@ class BlogListPage extends StatelessWidget {
             );
           } else if (snapshot.hasError) {
             print(snapshot.error);
-            //WidgetsBinding.instance.addPostFrameCallback((_) => _redirectToLoginPage(context));
             return Center(child: Text("Redirecting to login page..."));
           }
           return Center(child: CircularProgressIndicator());
@@ -77,16 +76,13 @@ Future<List<BlogArticle>> fetchArticles() async {
   );
   print(response.body) ;
   if (response.statusCode == 200) {
-    // Successfully fetched articles
     String responseBody = response.body;
-    List<dynamic> parsedJson = json.decode(responseBody); // Directly decode the response body into a List<dynamic>
-
+    List<dynamic> parsedJson = json.decode(responseBody);
     List<BlogArticle> articles = parsedJson.map((item) => BlogArticle.fromJson(item)).toList();
     print(articles);
     return articles;
   } else {
-    // Handle error or show an error message
     print('Failed to fetch articles');
-    throw Exception('Failed to fetch articles'); // Return an empty list instead of null
+    throw Exception('Failed to fetch articles');
   }
 }

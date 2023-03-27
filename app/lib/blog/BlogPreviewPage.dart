@@ -40,6 +40,11 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
       return [];
     }
   }
+  Future<bool> checkToken() async {
+    final storage = FlutterSecureStorage();
+    String? token = await storage.read(key: 'jwt_token');
+    return token != null && token.isNotEmpty;
+  }
 
   Future<void> _postComment() async {
     final storage = FlutterSecureStorage();
@@ -154,28 +159,37 @@ class _BlogPreviewPageState extends State<BlogPreviewPage> {
                     }).toList(),
                   );
                 } else if (snapshot.hasError) {
-                  return Text('Failed to load comments: ${snapshot.error}');
+                  return Text('Impossible de charger les commentaires: ${snapshot.error}');
                 } else {
                   return CircularProgressIndicator();
                 }
               },
             ),
-            // Comments section
-            // Replace with actual comments list widget
             SizedBox(height: 16),
-            TextField(
-              controller: _commentController,
-              decoration: InputDecoration(
-                labelText: 'Add a comment',
-                border: OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  onPressed: _postComment,
-                  icon: Icon(Icons.send),
-                ),
-              ),
-              maxLines: null,
-              minLines: 1,
+            FutureBuilder<bool>(
+              future: checkToken(),
+              builder: (context, snapshot) {
+                if (snapshot.hasData && snapshot.data!) {
+                  return TextField(
+                    controller: _commentController,
+                    decoration: InputDecoration(
+                      labelText: 'Commenter',
+                      border: OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        onPressed: _postComment,
+                        icon: Icon(Icons.send),
+                      ),
+                    ),
+                    maxLines: null,
+                    minLines: 1,
+                  );
+                } else {
+                  return Container();
+                }
+              },
             ),
+
+
           ],
         ),
       ),

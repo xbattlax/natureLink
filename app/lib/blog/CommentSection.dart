@@ -23,7 +23,6 @@ class _CommentsSectionState extends State<CommentsSection> {
   TextEditingController _commentController = TextEditingController();
 
   Future<void> _addComment() async {
-    // Add your API endpoint for adding a comment
     final response = await http.post(
       Uri.parse('$apiUrl/api/article/${widget.articleId}/comment'),
       headers: {

@@ -46,9 +46,7 @@ class _BottomNavScreenSelectionState extends State<BottomNavScreenSelection> {
     SharedPreferences pref = await SharedPreferences.getInstance();
     int lastIndex = pref.getInt(sharedPreferenceIndexKey) ?? 0;
     _selectedIndex = lastIndex;
-    /*setState(() {
-      _selectedIndex = lastIndex;
-    });*/
+
   }
 
   setCurrentIndex() async {

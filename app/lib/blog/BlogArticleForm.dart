@@ -39,14 +39,11 @@ class _BlogArticleFormState extends State<BlogArticleForm> {
       final response = await http.post(Uri.parse(url), headers: headers, body: body);
 
       if (response.statusCode == 201) {
-        // Show a success message, e.g., using a SnackBar
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Article créé avec succès')));
       } else {
-        // Handle the error
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur lors de la création de l\'article')));
       }
     } catch (e) {
-      // Handle exceptions
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur lors de la création de l\'article')));
     }
   }
